@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 name = "tracerec"
 version = "0.1.0"
-description = "Librería Python para la creación de sistemas de recomendación basados en trazas de usuario."
+description = "Python package for the creation of recommendation systems based on user traces."
 authors = [
     {name = "Alex Martínez", email = "alemarti@uji.es"}
 ]

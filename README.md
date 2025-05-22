@@ -1,41 +1,41 @@
 # tracerec
 
-Librería Python para la creación de sistemas de recomendación basados en trazas de usuario.
+Python package for the creation of recommendation systems based on user traces.
 
-## Instalación
+## Inslation
 
-Con pip:
+With pip:
 
 ```bash
 pip install tracerec
 ```
 
-Con Poetry:
+With Poetry:
 
 ```bash
 poetry add tracerec
 ```
 
-## Desarrollo
+## Development
 
-Para contribuir al desarrollo:
+For contributing to the development of this package, you can clone the repository and install the dependencies using Poetry.
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/almtav08/tracerec.git
 cd tracerec
 
-# Instalar dependencias de desarrollo
+# Install dev dependencies
 poetry install
 ```
 
-## Uso
+## Usage
 
 ```python
 import tracerec
 # ...
 ```
 
-## Licencia
+## License
 
 MIT
