@@ -1,36 +1,34 @@
 class Embedder:
     """
-    Clase base para todos los algoritmos de recomendación que generan embeddings.
-    Los modelos derivados deben implementar aprendizaje por contraste para el entrenamiento.
+    Base class for all recommendation algorithms that generate embeddings.
+    Derived models should implement contrastive learning for training.
     """
 
     def fit(self, X, y=None, X_neg=None):
         """
-        Entrena el modelo con los datos proporcionados usando aprendizaje por contraste.
+        Trains the model with the provided data using contrastive learning.
         Args:
-            X: Datos positivos de entrada (por ejemplo, interacciones usuario-item).
-            y: Etiquetas o valores objetivo (opcional).
-            X_neg: Datos negativos para contraste (opcional, pero recomendado para aprendizaje por contraste).
+            X: Positive input data (e.g., user-item interactions).
+            y: Labels or target values (optional).
+            X_neg: Negative data for contrast (optional, but recommended for contrastive learning).
         """
-        raise NotImplementedError(
-            "El método fit debe ser implementado por las subclases."
-        )
+        raise NotImplementedError("The fit method must be implemented by subclasses.")
 
     def transform(self, X):
         """
-        Genera embeddings a partir de los datos de entrada.
+        Generates embeddings from the input data.
         Args:
-            X: Datos de entrada.
+            X: Input data.
         Returns:
-            Embeddings generados.
+            Generated embeddings.
         """
         raise NotImplementedError(
-            "El método transform debe ser implementado por las subclases."
+            "The transform method must be implemented by subclasses."
         )
 
     def fit_transform(self, X, y=None, X_neg=None):
         """
-        Entrena el modelo y genera embeddings en un solo paso usando aprendizaje por contraste.
+        Trains the model and generates embeddings in a single step using contrastive learning.
         """
         self.fit(X, y, X_neg)
         return self.transform(X)
