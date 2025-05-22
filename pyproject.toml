@@ -1,3 +1,31 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "tracerec"
+version = "0.1.0"
+description = "Librería Python para la creación de sistemas de recomendación basados en trazas de usuario."
+authors = [
+    {name = "Alex Martínez", email = "alemarti@uji.es"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7,<4.0"
+dependencies = [
+    "torch>=2.0.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/almtav08/tracerec"
+"Bug Tracker" = "https://github.com/almtav08/tracerec/issues"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^23.7.0"
+isort = "^5.12.0"
