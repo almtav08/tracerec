@@ -16,8 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-requires-python = ">=3.7,<4.0"
+requires-python = ">=3.8"
 dependencies = [
+    "numpy>=1.23.0",
     "torch>=2.0.0"
 ]
 
