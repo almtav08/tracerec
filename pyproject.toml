@@ -7,7 +7,7 @@ name = "tracerec"
 version = "0.1.0"
 description = "Python package for the creation of recommendation systems based on user traces."
 authors = [
-    {name = "Alex Martínez", email = "alemarti@uji.es"}
+    {name = "Alex Martínez", email = "almtav08@gmail.com"}
 ]
 readme = "README.md"
 license = {text = "MIT"}
