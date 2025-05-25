@@ -2,6 +2,7 @@
 Triple manager for recommendation systems.
 Triples are representations of (subject, relation, object).
 """
+
 import random
 import torch
 from networkx import DiGraph, all_pairs_shortest_path_length
@@ -47,7 +48,7 @@ class TriplesManager:
             list: List of triples
         """
         return self.triples
-    
+
     def get_entities(self):
         """
         Returns the set of unique entities.
@@ -137,7 +138,7 @@ class TriplesManager:
             int: Number of triples
         """
         return len(self.triples)
-    
+
     def _build_relation_graphs(self):
         """
         Build a relation graph from the given triples.
@@ -151,13 +152,13 @@ class TriplesManager:
                 representing the edges in the relation graph.
         """
         relation_graphs = {relation: DiGraph() for relation in self.relations}
-        
+
         for subject, relation, object_ in self.triples:
             if relation in relation_graphs:
                 relation_graphs[relation].add_edge(subject, object_)
 
         return relation_graphs
-    
+
     def _build_entity_paths(self):
         """
         Build entity paths from the given triples.
@@ -171,12 +172,12 @@ class TriplesManager:
                 representing the paths for each relation.
         """
         entity_paths = {relation: {} for relation in self.relations}
-        
+
         for relation, graph in self.relation_graphs.items():
             entity_paths[relation] = dict(all_pairs_shortest_path_length(graph))
-        
+
         return entity_paths
-    
+
     def _calc_ground_truth(self, subject, relation):
         """
         Calculate the ground truth for a given subject and relation.
@@ -189,14 +190,16 @@ class TriplesManager:
             set: Set of objects that are related to the subject by the given relation
         """
         return [o for s, r, o in self.triples if s == subject and r == relation]
-    
-    def split(self, train_ratio=0.8, realtion_ratio=False, random_state=None, device='cpu'):
+
+    def split(
+        self, train_ratio=0.8, relation_ratio=False, random_state=None, device="cpu"
+    ):
         """
         Splits the triples into training and testing sets.
 
         Args:
             train_ratio (float): Proportion of triples to include in the training set
-            realtion_ratio (bool): If True, ensures that the train/test split maintains the same ratio of relations
+            relation_ratio (bool): If True, ensures that the train/test split maintains the same ratio of relations
             random_state (int, optional): Random seed for reproducibility
             device (str): Device to run the split on ('cpu' or 'cuda')
 
@@ -207,7 +210,7 @@ class TriplesManager:
             random.seed(random_state)
             random.shuffle(self.triples)
 
-        if realtion_ratio:
+        if relation_ratio:
             # Group triples by relation
             relation_groups = {}
             for triple in self.triples:
