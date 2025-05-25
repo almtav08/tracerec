@@ -1,9 +1,9 @@
 """
 Specific dataset for working with triples in PyTorch.
 """
+import torch
 
 from tracerec.data.datasets.base_dataset import BaseRecDataset
-from tracerec.data.triples.triples_manager import TriplesManager
 
 
 class TriplesDataset(BaseRecDataset):
@@ -11,44 +11,29 @@ class TriplesDataset(BaseRecDataset):
     PyTorch dataset for data triples (subject, relation, object).
     """
 
-    def __init__(self, triples_manager=None):
+    def __init__(self, positive_triples, negative_triples=None):
         """
         Initializes the triples dataset.
 
         Args:
-            triples_manager (TriplesManager): Triple manager
+            positive_triples (list): List of positive triples in the form (subject, relation, object)
+            negative_triples (list, optional): List of negative triples in the same form.
         """
-        self.triples_manager = (
-            triples_manager if triples_manager is not None else TriplesManager()
-        )
-        super().__init__(data=self.triples_manager.triples)
+        self.positive_triples = positive_triples
+        self.negative_triples = negative_triples
+        super().__init__(data=self.positive_triples)
 
-    def add_triple(self, subject, relation, object_):
+    def __getitem__(self, idx):
         """
-        Adds a triple to the dataset.
+        Gets an element from the dataset.
 
         Args:
-            subject: Subject of the triple
-            relation: Relation of the triple
-            object_: Object of the triple
-        """
-        self.triples_manager.add_triple(subject, relation, object_)
-        self.data = self.triples_manager.triples
-
-    def get_entity_count(self):
-        """
-        Gets the number of unique entities.
+            idx (int): Index of the element to get
 
         Returns:
-            int: Number of entities
+            tuple: (positive_triple, negative_triple(s)) if negative triples are available,
+                   otherwise returns only the positive triple
         """
-        return self.triples_manager.get_entity_count()
-
-    def get_relation_count(self):
-        """
-        Gets the number of unique relations.
-
-        Returns:
-            int: Number of relations
-        """
-        return self.triples_manager.get_relation_count()
+        if self.negative_triples is not None:
+            return self.positive_triples[idx], self.negative_triples[idx]
+        return self.positive_triples[idx]
