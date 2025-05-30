@@ -14,47 +14,34 @@ class Embedder(nn.Module):
         """
         super(Embedder, self).__init__()
 
-    def fit(self, data, data_neg, y):
+    def to_device(self, device='cpu'):
         """
-        Trains the model with the provided data using contrastive learning.
+        Moves the model to the specified device (CPU or GPU).
         Args:
-            data: Positive input data.
-            data_neg: Negative data for contrast.
-            y: Labels or target values.
+            device: Device to move the model to ('cpu' or 'cuda').
         """
-        raise NotImplementedError("The fit method must be implemented by subclasses.")
+        self.device = device
+        self.to(device)
 
-    def transform(self, X):
+    def compile(
+        self,
+        optimizer,
+        criterion,
+        metrics=["loss"],
+    ):
         """
-        Generates embeddings from the input data.
+        Compile the model with the specified optimizer, criterion, and metrics.
         Args:
-            X: Input data.
-        Returns:
-            Generated embeddings.
+            optimizer: Optimizer to use for training
+            criterion: Loss function to use for training
+            metrics: List of metrics to monitor during training (default: ['loss'])
         """
-        raise NotImplementedError(
-            "The transform method must be implemented by subclasses."
-        )
 
-    def fit_transform(self, X, y=None, X_neg=None):
-        """
-        Trains the model and generates embeddings for all entities in a single step.
-        
-        Args:
-            X: Positive input data (e.g., user-item interactions).
-            y: Labels or target values (optional).
-            X_neg: Negative data for contrast (optional, but recommended for contrastive learning).
-            
-        Returns:
-            Embeddings for all entities in the model.
-        """
-        self.fit(X, y, X_neg)
+        # Set optimizer and criterion
+        self.optimizer = optimizer
+        self.criterion = criterion
 
-        # For knowledge graph embeddings, return embeddings for all entities
-        if hasattr(self, 'num_entities'):
-            # Create tensor with all entity IDs
-            all_entities = torch.arange(self.num_entities, device=getattr(self, 'device', 'cpu'))
-            return self.transform(all_entities)
-        else:
-            # Default behavior for other embedding models
-            return self.transform(X)
+        # Set metrics
+        self.metrics = metrics
+
+        return self
