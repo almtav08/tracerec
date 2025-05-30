@@ -1,9 +1,7 @@
 import torch
 from tracerec.algorithms.knowledge_based.transe import TransE
-from tracerec.data.datasets.triples_dataset import TriplesDataset
 from tracerec.data.triples.triples_manager import TriplesManager
 from tracerec.samplers.negative_triple_sampler import NegativeTripleSampler
-from tracerec.utils.collates import pos_neg_triple_collate
 
 
 def test_triples_dataset():
@@ -30,4 +28,3 @@ def test_triples_dataset():
 
 if __name__ == "__main__":
     test_triples_dataset()
-    print("All tests passed!")
