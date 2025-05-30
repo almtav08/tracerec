@@ -59,7 +59,7 @@ class KnowledgeEmbedder(Embedder):
         self.relation_embeddings = self.relation_embeddings.to(self.device)
         if hasattr(self, "criterion") and hasattr(self.criterion, "to"):
             self.criterion = self.criterion.to(self.device)
-        super.to_device(device)
+        super().to_device(device)
 
     def forward(self, triples):
         """

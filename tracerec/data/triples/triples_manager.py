@@ -76,6 +76,16 @@ class TriplesManager:
         self.relation_graphs = self._build_relation_graphs()
         self.entity_paths = self._build_entity_paths()
 
+    def get_entity_paths(self):
+        """
+        Returns the entity paths for each relation.
+
+        Returns:
+            dict: Dictionary where keys are relations and values are dictionaries
+                  of entity paths with their lengths
+        """
+        return self.entity_paths
+
     def filter_by_relation(self, relation):
         """
         Filters triples by a specific relation.
