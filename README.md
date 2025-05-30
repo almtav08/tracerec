@@ -32,6 +32,12 @@ poetry install
 ## Usage
 
 ```python
+import torch
+from tracerec.algorithms.knowledge_based.transe import TransE
+from tracerec.data.triples.triples_manager import TriplesManager
+from tracerec.samplers.path_based_sampler import PathBasedNegativeSampler
+
+
 # Create a sample triples manager with some triples
     triples = [
         (1, 0, 2),
