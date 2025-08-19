@@ -1,6 +1,7 @@
 import torch
 import random
 
+from tracerec.data.triples.triples_manager import TriplesManager
 from tracerec.samplers.negative_triple_sampler import NegativeTripleSampler
 
 
@@ -12,9 +13,8 @@ class RandomNegativeSampler(NegativeTripleSampler):
 
     def __init__(
         self,
-        all_triples,
-        all_entities,
-        corruption_ration=0,
+        triples_manager: TriplesManager,
+        corruption_ratio=0,
         device="cpu",
     ):
         """
@@ -26,7 +26,9 @@ class RandomNegativeSampler(NegativeTripleSampler):
             corruption_ration (float): Ratio of head/tail corruption for negative sampling (by default, 0, only tails are corrupted)
             device (str): Device to run the model on ('cpu' or 'cuda')
         """
-        super().__init__(all_triples, all_entities, corruption_ration, device)
+        all_triples = triples_manager.get_triples()
+        all_entities = triples_manager.get_entities()
+        super().__init__(all_triples, all_entities, corruption_ratio, device)
 
     def sample(self, positive_triples, num_samples=1, random_state=None):
         """

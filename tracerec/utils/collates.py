@@ -18,3 +18,17 @@ def pos_neg_triple_collate(batch):
         )
 
     return output
+
+
+def path_collate(batch):
+    if len(batch[0]) == 3:
+        paths, grades, masks = zip(*batch)
+    else:
+        paths, grades = zip(*batch)
+        masks = None
+
+    paths = torch.stack(list(paths), dim=0)
+    grades = torch.tensor(grades, dtype=torch.float32)
+    masks = torch.stack(list(masks), dim=0) if masks is not None else None
+
+    return paths, grades, masks

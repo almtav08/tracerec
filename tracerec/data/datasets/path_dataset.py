@@ -11,62 +11,32 @@ class PathDataset(BaseRecDataset):
     PyTorch dataset for interaction paths between users and items.
     """
 
-    def __init__(self, path_manager=None,):
+    def __init__(self, paths, grades, masks = None):
         """
         Initializes the paths dataset.
 
         Args:
-            path_manager (PathManager): Path manager
+            paths (list): List of user paths
+            grades (list): List of grades corresponding to the paths
         """
-        self.path_manager = path_manager if path_manager is not None else PathManager()
-        # Convert paths to a list to be compatible with Dataset
-        paths_list = [
-            (user, interactions)
-            for user, interactions in self.path_manager.paths.items()
-        ]
-        super().__init__(data=paths_list)
+        self.paths = paths
+        self.grades = grades
+        self.masks = masks
+        super().__init__(data=paths)
 
-    def add_interaction(self, user_id, item):
+    def __getitem__(self, idx):
         """
-        Adds an interaction to a user's path.
+        Gets a single item from the dataset.
 
         Args:
-            user_id: User identifier
-            item: The item the user has interacted with
-        """
-        self.path_manager.add_interaction(user_id, item)
-        # Update the data list
-        self.data = [
-            (user, interactions)
-            for user, interactions in self.path_manager.paths.items()
-        ]
-
-    def get_user_path(self, user_id):
-        """
-        Gets the complete path of a user.
-
-        Args:
-            user_id: User identifier
+            idx (int): Index of the item to retrieve
 
         Returns:
-            list: List of items the user has interacted with, or None if the user doesn't exist
+            tuple: (path, grade) for the specified index
         """
-        return self.path_manager.get_user_path(user_id)
-
-    def get_users(self):
-        """
-        Gets the list of users with paths.
-
-        Returns:
-            list: List of user identifiers
-        """
-        return self.path_manager.get_users()
-
-    def get_entity_count(self):
-        """
-        Gets the number of unique entities.
-
-        Returns:
-            int: Number of entities
-        """
-        return self.path_manager.get_entity_count()
+        path = self.paths[idx]
+        grade = self.grades[idx]
+        mask = self.masks[idx] if self.masks is not None else None
+        if mask is not None:
+            return path, grade, mask
+        return path, grade

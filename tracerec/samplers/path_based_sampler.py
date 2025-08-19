@@ -1,6 +1,7 @@
 import random
 import torch
 
+from tracerec.data.triples.triples_manager import TriplesManager
 from tracerec.samplers.negative_triple_sampler import NegativeTripleSampler
 
 
@@ -12,11 +13,9 @@ class PathBasedNegativeSampler(NegativeTripleSampler):
 
     def __init__(
         self,
-        all_triples,
-        all_entities,
-        corruption_ration=0,
+        triples_manager: TriplesManager,
+        corruption_ratio=0,
         device="cpu",
-        entity_paths={},
         min_distance=1.0,
     ):
         """
@@ -30,7 +29,11 @@ class PathBasedNegativeSampler(NegativeTripleSampler):
             entity_paths (dict): Precomputed paths for each entity
             min_distance (float): Minimum distance for path-based sampling (default: 1.0)
         """
-        super().__init__(all_triples, all_entities, corruption_ration, device)
+        all_triples = triples_manager.get_triples()
+        all_entities = triples_manager.get_entities()
+        entity_paths = triples_manager.get_entity_paths()
+
+        super().__init__(all_triples, all_entities, corruption_ratio, device)
 
         self.entity_paths = entity_paths
         self.min_distance = min_distance

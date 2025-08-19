@@ -9,12 +9,13 @@ from tracerec.data.datasets.triples_dataset import TriplesDataset
 from tracerec.utils.collates import pos_neg_triple_collate
 
 
-class KnowledgeEmbedder(Embedder):
+class GraphEmbedder(Embedder):
     """
     A class to embed knowledge into a vector space.
     This class is designed to handle knowledge graphs and their embeddings.
     It inherits from the Embedder class and implements methods for fitting and transforming data.
     """
+
     def __init__(
         self,
         num_entities,
@@ -27,7 +28,7 @@ class KnowledgeEmbedder(Embedder):
         Initializes the KnowledgeEmbedder class.
         This class serves as a base for all knowledge-based embedding models.
         """
-        super(KnowledgeEmbedder, self).__init__()
+        super(GraphEmbedder, self).__init__()
 
         # Initialize parameters
         self.num_entities = num_entities
@@ -53,7 +54,7 @@ class KnowledgeEmbedder(Embedder):
         # Move model to the specified device
         self.to_device()
 
-    def to_device(self, device='cpu'):
+    def to_device(self, device="cpu"):
         """Move the model to the specified device."""
         self.entity_embeddings = self.entity_embeddings.to(self.device)
         self.relation_embeddings = self.relation_embeddings.to(self.device)
@@ -69,15 +70,14 @@ class KnowledgeEmbedder(Embedder):
         Returns:
             Embeddings for the input triples.
         """
-        raise NotImplementedError("The forward method must be implemented by subclasses.")
+        raise NotImplementedError(
+            "The forward method must be implemented by subclasses."
+        )
 
     def fit(
         self,
         data,
         data_neg,
-        y,
-        val_data=None,
-        val_y=None,
         num_epochs=100,
         batch_size=128,
         lr=0.001,
@@ -91,9 +91,6 @@ class KnowledgeEmbedder(Embedder):
         Args:
             data: Training data containing positive triples (as a PyTorch Tensor)
             data_neg: Negative triples for training (as a PyTorch Tensor)
-            y: Ground truth labels for the training data (as a PyTorch Tensor)
-            val_data: Validation data for monitoring performance (optional)
-            val_y: Ground truth labels for the validation data (optional)
             num_epochs: Number of epochs to train the model (default: 100)
             batch_size: Batch size for training (default: 128)
             lr: Learning rate for the optimizer (default: 0.001)
@@ -106,7 +103,6 @@ class KnowledgeEmbedder(Embedder):
         """
         # Setup progress tracking
         best_train_metric = float("-inf")
-        best_model_state = None
 
         # Set model to training mode
         self.train()
@@ -174,7 +170,6 @@ class KnowledgeEmbedder(Embedder):
             # If checkpointing is enabled, save the model if it improves
             if checkpoint_path and -avg_loss > best_train_metric:
                 best_train_metric = avg_loss
-                best_model_state = self.state_dict()
                 torch.save(self, checkpoint_path)
 
         return self
@@ -184,13 +179,13 @@ class KnowledgeEmbedder(Embedder):
         Generate embeddings for the given entities.
 
         Args:
-            X: Entity IDs for which to generate embeddings
+            data: Entity IDs for which to generate embeddings
 
         Returns:
             Entity embeddings for each input ID
         """
-        if not isinstance(X, torch.Tensor):
-            X = torch.tensor(X, dtype=torch.long, device=self.device)
+        if not isinstance(data, torch.Tensor):
+            data = torch.tensor(data, dtype=torch.long, device=self.device)
 
         # Return the actual entity embeddings
-        return self.entity_embeddings(X)
+        return self.entity_embeddings(data)

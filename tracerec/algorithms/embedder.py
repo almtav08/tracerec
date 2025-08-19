@@ -27,7 +27,6 @@ class Embedder(nn.Module):
         self,
         optimizer,
         criterion,
-        metrics=["loss"],
     ):
         """
         Compile the model with the specified optimizer, criterion, and metrics.
@@ -40,8 +39,5 @@ class Embedder(nn.Module):
         # Set optimizer and criterion
         self.optimizer = optimizer
         self.criterion = criterion
-
-        # Set metrics
-        self.metrics = metrics
 
         return self
