@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from tracerec.algorithms.graph_based.rotate import RotatE
+from tracerec.algorithms.graph_based.tucker import Tucker
 from tracerec.algorithms.sequential_based.sasrec import SASRecEncoder
 from tracerec.data.datasets.path_dataset import PathDataset
 from tracerec.data.paths.path_manager import PathManager
@@ -26,7 +26,7 @@ def test_graph_embedder():
     )
     train_x_neg = sampler.sample(train_x, num_samples=1, random_state=42)
 
-    transe = RotatE(
+    transe = Tucker(
         num_entities=4,
         num_relations=1,
         embedding_dim=10,
