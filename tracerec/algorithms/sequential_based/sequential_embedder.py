@@ -19,6 +19,7 @@ class SequentialEmbedder(Embedder):
         embedding_dim,
         max_seq_length,
         dropout=0.2,
+        pooling="last",
         device="cpu",
     ):
         """
@@ -32,6 +33,7 @@ class SequentialEmbedder(Embedder):
         self.max_seq_length = max_seq_length
         self.dropout = dropout
         self.device = device
+        self.pooling = pooling
         self.last_loss = None
         self.history = {"train_loss": [], "epoch_time": [], "train_metric": {}}
 
@@ -111,10 +113,7 @@ class SequentialEmbedder(Embedder):
                 # Clear gradients
                 self.optimizer.zero_grad()
 
-                if masks is not None:
-                    embeddings = self(paths, mask=masks, pooling="last")
-                else:
-                    embeddings = self(paths, pooling="last")
+                embeddings = self(paths, mask=masks)
                 loss = self.criterion(embeddings, grades)
 
                 # Backward pass and optimization

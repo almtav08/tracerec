@@ -75,6 +75,7 @@ def test_sequential_embedder():
         max_seq_length=4,
         num_layers=2,
         num_heads=2,
+        pooling="last",
         dropout=0.2,
         device="cpu",
     )

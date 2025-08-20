@@ -12,6 +12,7 @@ class SASRecEncoder(SequentialEmbedder):
         num_layers=2,
         num_heads=2,
         dropout=0.2,
+        pooling="last",
         device="cpu",
     ):
         super(SASRecEncoder, self).__init__(
@@ -19,6 +20,7 @@ class SASRecEncoder(SequentialEmbedder):
             max_seq_length=max_seq_length,
             dropout=dropout,
             device=device,
+            pooling=pooling
         )
 
         self.num_layers = num_layers
@@ -44,7 +46,7 @@ class SASRecEncoder(SequentialEmbedder):
         self.encoder = self.encoder.to(device)
         return super().to_device(device)
 
-    def forward(self, input_embs, mask=None, pooling="mean"):
+    def forward(self, input_embs, mask=None):
         """
         Forward pass through the SASRec encoder.
         Args:
@@ -66,7 +68,7 @@ class SASRecEncoder(SequentialEmbedder):
 
         # Create mask for the Transformer if padding is present
         if mask is not None:
-            padding_mask = ~mask.bool()  # Transformer expects True for padding
+            padding_mask = mask.bool()  # Transformer expects True for padding
         else:
             padding_mask = None
 
@@ -74,21 +76,19 @@ class SASRecEncoder(SequentialEmbedder):
         out = self.encoder(x, src_key_padding_mask=padding_mask)
 
         # Apply pooling
-        if pooling == "last":
+        if self.pooling == "last":
             # Encuentra el índice del último token válido (no padding)
             if mask is not None:
                 lengths = mask.sum(dim=1) - 1
                 user_emb = out[torch.arange(batch_size, dtype=torch.long), lengths]
             else:
                 user_emb = out[:, -1, :]
-        elif pooling == "mean":
+        elif self.pooling == "mean":
             if mask is not None:
                 user_emb = (out * mask.unsqueeze(-1)).sum(dim=1) / mask.sum(
                     dim=1, keepdim=True
                 )
             else:
                 user_emb = out.mean(dim=1)
-        else:
-            raise ValueError(f"Unsupported pooling method: {pooling}")
 
         return user_emb
