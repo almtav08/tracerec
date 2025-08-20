@@ -96,4 +96,4 @@ def test_sequential_embedder():
 
 if __name__ == "__main__":
     test_graph_embedder()
-    # test_sequential_embedder()
+    test_sequential_embedder()
