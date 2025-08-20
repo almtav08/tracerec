@@ -1,13 +1,12 @@
 import torch
+import torch.nn as nn
 
 from .graph_embedder import GraphEmbedder
 
 
-class TransE(GraphEmbedder):
+class TransH(GraphEmbedder):
     """
-    Implementation of TransE knowledge graph embedding model.
-    TransE models entities and relations as vectors in the same space,
-    with the goal that h + r ≈ t for true triples (h, r, t).
+    Implementation of TransH knowledge graph embedding model.
     """
 
     def __init__(
@@ -19,7 +18,7 @@ class TransE(GraphEmbedder):
         norm=1,
     ):
         """
-        Initialize the TransE model with the given parameters.
+        Initialize the TransH model with the given parameters.
 
         Args:
             num_entities: Number of unique entities in the knowledge graph
@@ -28,13 +27,22 @@ class TransE(GraphEmbedder):
             device: Device to run the model on ('cpu' or 'cuda')
             norm: The p-norm to use for distance calculation (default: 1, Manhattan distance)
         """
-        super(TransE, self).__init__(
+        super(TransH, self).__init__(
             num_entities, num_relations, embedding_dim, device, norm
         )
 
+        self.normal_vectors = nn.Embedding(num_relations, embedding_dim)
+        nn.init.xavier_uniform_(self.normal_vectors.weight.data)
+
+        self.to_device(device)
+
+    def to_device(self, device="cpu"):
+        self.normal_vectors = self.normal_vectors.to(device)
+        return super().to_device(device)
+
     def forward(self, triples):
         """
-        Forward pass for the TransE model.
+        Forward pass for the TransH model.
 
         Args:
             triples: Tensor of shape (batch_size, 3) containing (head, relation, tail) triples
@@ -48,9 +56,11 @@ class TransE(GraphEmbedder):
         head_embeddings = self.entity_embeddings(heads)
         relation_embeddings = self.relation_embeddings(relations)
         tail_embeddings = self.entity_embeddings(tails)
+        normal_embeddings = self.normal_vectors(relations)
 
-        # TransE score: || h + r - t ||
-        scores = torch.norm(
-            head_embeddings + relation_embeddings - tail_embeddings, p=self.norm, dim=1
-        )
+        h_proj = head_embeddings - torch.sum(head_embeddings * normal_embeddings, dim=1, keepdim=True) * normal_embeddings
+        t_proj = tail_embeddings - torch.sum(tail_embeddings * normal_embeddings, dim=1, keepdim=True) * normal_embeddings
+
+        scores = torch.norm(h_proj + relation_embeddings - t_proj, p=self.norm, dim=1)
+
         return scores

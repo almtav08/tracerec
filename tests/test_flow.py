@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from tracerec.algorithms.graph_based.transe import TransE
+from tracerec.algorithms.graph_based.rotate import RotatE
 from tracerec.algorithms.sequential_based.sasrec import SASRecEncoder
 from tracerec.data.datasets.path_dataset import PathDataset
 from tracerec.data.paths.path_manager import PathManager
@@ -26,9 +26,12 @@ def test_graph_embedder():
     )
     train_x_neg = sampler.sample(train_x, num_samples=1, random_state=42)
 
-    # Create and compile the TransE model
-    transe = TransE(
-        num_entities=4, num_relations=1, embedding_dim=10, device="cpu", norm=1
+    transe = RotatE(
+        num_entities=4,
+        num_relations=1,
+        embedding_dim=10,
+        device="cpu",
+        norm=1,
     )
     transe.compile(
         optimizer=torch.optim.Adam, criterion=torch.nn.MarginRankingLoss(margin=1.0)
@@ -93,4 +96,4 @@ def test_sequential_embedder():
 
 if __name__ == "__main__":
     test_graph_embedder()
-    test_sequential_embedder()
+    # test_sequential_embedder()

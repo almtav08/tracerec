@@ -1,13 +1,13 @@
+import numpy as np
 import torch
+import torch.nn as nn
 
 from .graph_embedder import GraphEmbedder
 
 
-class TransE(GraphEmbedder):
+class RotatE(GraphEmbedder):
     """
-    Implementation of TransE knowledge graph embedding model.
-    TransE models entities and relations as vectors in the same space,
-    with the goal that h + r ≈ t for true triples (h, r, t).
+    Implementation of RotatE knowledge graph embedding model.
     """
 
     def __init__(
@@ -15,11 +15,12 @@ class TransE(GraphEmbedder):
         num_entities,
         num_relations,
         embedding_dim=100,
+        gamma=12.0,
         device="cpu",
         norm=1,
     ):
         """
-        Initialize the TransE model with the given parameters.
+        Initialize the RotatE model with the given parameters.
 
         Args:
             num_entities: Number of unique entities in the knowledge graph
@@ -28,13 +29,20 @@ class TransE(GraphEmbedder):
             device: Device to run the model on ('cpu' or 'cuda')
             norm: The p-norm to use for distance calculation (default: 1, Manhattan distance)
         """
-        super(TransE, self).__init__(
+        super(RotatE, self).__init__(
             num_entities, num_relations, embedding_dim, device, norm
+        )
+
+        self.gamma = gamma
+        self.epsilon = 2.0
+        self.embedding_range = nn.Parameter(
+            torch.Tensor([(self.gamma + self.epsilon) / embedding_dim]),
+            requires_grad=False,
         )
 
     def forward(self, triples):
         """
-        Forward pass for the TransE model.
+        Forward pass for the RotatE model.
 
         Args:
             triples: Tensor of shape (batch_size, 3) containing (head, relation, tail) triples
@@ -49,8 +57,17 @@ class TransE(GraphEmbedder):
         relation_embeddings = self.relation_embeddings(relations)
         tail_embeddings = self.entity_embeddings(tails)
 
-        # TransE score: || h + r - t ||
-        scores = torch.norm(
-            head_embeddings + relation_embeddings - tail_embeddings, p=self.norm, dim=1
+        reh, imh = torch.chunk(head_embeddings, 2, dim=-1)
+        ret, imt = torch.chunk(tail_embeddings, 2, dim=-1)
+
+        phase = relation_embeddings / (self.embedding_range / np.pi)
+        rcos, rsin = torch.cos(phase), torch.sin(phase)
+
+        reh_rot = reh * rcos - imh * rsin
+        imh_rot = reh * rsin + imh * rcos
+
+        scores = torch.norm(reh_rot - ret, p=self.norm, dim=1) + torch.norm(
+            imh_rot - imt, p=self.norm, dim=1
         )
+
         return scores

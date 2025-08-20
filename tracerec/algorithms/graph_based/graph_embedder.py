@@ -51,9 +51,6 @@ class GraphEmbedder(Embedder):
             self.entity_embeddings.weight.data, p=self.norm, dim=1
         )
 
-        # Move model to the specified device
-        self.to_device()
-
     def to_device(self, device="cpu"):
         """Move the model to the specified device."""
         self.entity_embeddings = self.entity_embeddings.to(self.device)
