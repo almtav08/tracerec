@@ -66,12 +66,12 @@ class SASRecEncoder(SequentialEmbedder):
 
         # Create mask for the Transformer if padding is present
         if mask is not None:
-            attention_mask = ~mask.bool()  # Transformer expects True for padding
+            padding_mask = ~mask.bool()  # Transformer expects True for padding
         else:
-            attention_mask = None
+            padding_mask = None
 
         # Pass through the transformer encoder
-        out = self.encoder(x, src_key_padding_mask=attention_mask)
+        out = self.encoder(x, src_key_padding_mask=padding_mask)
 
         # Apply pooling
         if pooling == "last":
