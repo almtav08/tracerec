@@ -186,3 +186,19 @@ class GraphEmbedder(Embedder):
 
         # Return the actual entity embeddings
         return self.entity_embeddings(data)
+    
+    def transform_relation(self, data):
+        """
+        Generate embeddings for the given relations.
+
+        Args:
+            data: Relation IDs for which to generate embeddings
+
+        Returns:
+            Relation embeddings for each input ID
+        """
+        if not isinstance(data, torch.Tensor):
+            data = torch.tensor(data, dtype=torch.long, device=self.device)
+
+        # Return the actual relation embeddings
+        return self.relation_embeddings(data)
