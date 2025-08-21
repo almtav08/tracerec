@@ -58,7 +58,7 @@ class SequentialEmbedder(Embedder):
     def fit(self,
         data,
         y,
-        masks,
+        masks=None,
         num_epochs=100,
         batch_size=128,
         lr=0.001,

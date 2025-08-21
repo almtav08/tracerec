@@ -35,7 +35,8 @@ class PathManager:
         self.entities = set()
 
         if self.paths:
-            self._pad_paths()
+            if self.max_seq_length > 0:
+                self._pad_paths()
             self._extract_entities()
 
         if self.item_embedder is not None:

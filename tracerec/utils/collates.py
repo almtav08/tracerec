@@ -29,6 +29,6 @@ def path_collate(batch):
 
     paths = torch.stack(list(paths), dim=0)
     grades = torch.tensor(grades, dtype=torch.float32)
-    masks = torch.stack(list(masks), dim=0) if masks is not None else None
+    masks = torch.stack(list(masks), dim=0) if masks[0] is not None else None
 
     return paths, grades, masks

@@ -37,6 +37,5 @@ class PathDataset(BaseRecDataset):
         path = self.paths[idx]
         grade = self.grades[idx]
         mask = self.masks[idx] if self.masks is not None else None
-        if mask is not None:
-            return path, grade, mask
-        return path, grade
+        
+        return path, grade, mask
