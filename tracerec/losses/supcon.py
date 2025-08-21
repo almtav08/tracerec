@@ -2,11 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from .loss import Loss
 
-class SupConLoss(nn.Module):
+
+class SupConLoss(Loss):
     def __init__(self, temperature=0.07):
         super(SupConLoss, self).__init__()
         self.temperature = temperature
+        self.pairwise = False
 
     def forward(self, features, labels):
         device = features.device

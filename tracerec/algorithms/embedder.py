@@ -1,5 +1,8 @@
+from typing import Union
 import torch
 import torch.nn as nn
+
+from tracerec.losses.loss import Loss
 
 
 class Embedder(nn.Module):
@@ -26,7 +29,7 @@ class Embedder(nn.Module):
     def compile(
         self,
         optimizer,
-        criterion,
+        criterion: Union[Loss, nn.Module],
     ):
         """
         Compile the model with the specified optimizer, criterion, and metrics.

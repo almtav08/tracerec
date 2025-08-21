@@ -2,9 +2,9 @@ import torch
 from torch.utils.data import DataLoader
 from tracerec.algorithms.graph_based.tucker import Tucker
 from tracerec.algorithms.sequential_based.sasrec import SASRecEncoder
-from tracerec.data.datasets.path_dataset import PathDataset
 from tracerec.data.paths.path_manager import PathManager
 from tracerec.data.triples.triples_manager import TriplesManager
+from tracerec.losses.bpr import BPRLoss
 from tracerec.losses.supcon import SupConLoss
 from tracerec.samplers.path_based_sampler import PathBasedNegativeSampler
 
@@ -57,8 +57,10 @@ def test_sequential_embedder():
         1: [0, 1, 2],
         2: [0, 1, 2, 3],
         3: [1, 2],
+        4: [1, 2, 3],
+        5: [2, 3],
     }
-    grades = [0, 1, 1, 0]
+    grades = [0, 1, 1, 0, 1, 0]
 
     graph_embedder = torch.load("./transe.pth", weights_only=False)
 
@@ -67,7 +69,7 @@ def test_sequential_embedder():
     path_manager = PathManager(paths, grades, max_seq_length, graph_embedder)
 
     train_x, train_y, train_masks, test_x, test_y, test_masks = path_manager.split(
-        train_ratio=0.5, relation_ratio=True, random_state=42, device="cpu"
+        train_ratio=0.8, relation_ratio=True, random_state=None, device="cpu"
     )
 
     sasrec = SASRecEncoder(
@@ -80,14 +82,14 @@ def test_sequential_embedder():
         device="cpu",
     )
 
-    sasrec.compile(optimizer=torch.optim.Adam, criterion=SupConLoss())
+    sasrec.compile(optimizer=torch.optim.Adam, criterion=BPRLoss())
 
     sasrec.fit(
         train_x,
         train_y,
         train_masks,
         num_epochs=1,
-        batch_size=1,
+        batch_size=2,
         lr=0.001,
         verbose=True,
         checkpoint_path="./sasrec.pth",
@@ -96,5 +98,5 @@ def test_sequential_embedder():
     print(sasrec.history)
 
 if __name__ == "__main__":
-    test_graph_embedder()
+    # test_graph_embedder()
     test_sequential_embedder()

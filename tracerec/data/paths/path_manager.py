@@ -68,7 +68,7 @@ class PathManager:
         """
         if self.item_embedder is not None:
             for user, items in self.paths.items():
-                item_embeddings = self.item_embedder.transform(items)
+                item_embeddings = self.item_embedder.transform(items).detach()
                 self.paths[user] = item_embeddings
 
     def _extract_entities(self):

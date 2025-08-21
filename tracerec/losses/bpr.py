@@ -1,12 +1,15 @@
 import torch
 import torch.nn as nn
 
+from .loss import Loss
 
-class BPRLoss(nn.Module):
+
+class BPRLoss(Loss):
     def __init__(self, l2_reg=1e-4):
         super().__init__()
         self.l2_reg = l2_reg
-
+        self.pairwise = True
+        
     def forward(self, anchor_embs, pos_user_embs, neg_user_embs):
         pos_scores = (anchor_embs * pos_user_embs).sum(dim=1)
         neg_scores = (anchor_embs * neg_user_embs).sum(dim=1)

@@ -32,3 +32,19 @@ def path_collate(batch):
     masks = torch.stack(list(masks), dim=0) if masks[0] is not None else None
 
     return paths, grades, masks
+
+
+def pairwise_collate(batch):
+    anchor, pos, neg = zip(*batch)
+    anchor_path, anchor_mask = zip(*anchor)
+    pos_path, pos_mask = zip(*pos)
+    neg_path, neg_mask = zip(*neg)
+    
+    anchor_path = torch.stack(list(anchor_path), dim=0)
+    anchor_mask = torch.stack(list(anchor_mask), dim=0)
+    pos_path = torch.stack(list(pos_path), dim=0)
+    pos_mask = torch.stack(list(pos_mask), dim=0)
+    neg_path = torch.stack(list(neg_path), dim=0)
+    neg_mask = torch.stack(list(neg_mask), dim=0)
+
+    return anchor_path, anchor_mask, pos_path, pos_mask, neg_path, neg_mask

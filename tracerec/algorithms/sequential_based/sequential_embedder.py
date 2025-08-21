@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 from tracerec.algorithms.embedder import Embedder
 from tracerec.data.datasets.path_dataset import PathDataset
-from tracerec.utils.collates import path_collate
+from tracerec.utils.collates import path_collate, pairwise_collate
 
 
 class SequentialEmbedder(Embedder):
@@ -92,14 +92,16 @@ class SequentialEmbedder(Embedder):
         # Set optimizer
         self.optimizer = self.optimizer(self.parameters(), lr=lr)
 
+        pairwise = getattr(self.criterion, "is_pairwise", False) and self.criterion.is_pairwise()
+
         # Create DataLoader for batching
-        dataset = PathDataset(data, y, masks)
+        dataset = PathDataset(data, y, masks, pairwise=pairwise)
 
         train_loader = DataLoader(
             dataset,
             batch_size=batch_size,
             shuffle=shuffle,
-            collate_fn=path_collate,
+            collate_fn=path_collate if not pairwise else pairwise_collate,
         )
 
         # Training loop
@@ -109,16 +111,20 @@ class SequentialEmbedder(Embedder):
             # Track total loss for this epoch
             total_loss = 0
 
-            for paths, grades, masks in train_loader:
+            for data in train_loader:
                 # Clear gradients
                 self.optimizer.zero_grad()
 
-                embeddings = self(paths, mask=masks)
-                loss = self.criterion(embeddings, grades)
+                if pairwise:
+                    loss = self._process_loss_pairwise(data)
+                else:
+                    loss = self._process_loss_not_pairwise(data)
 
                 # Backward pass and optimization
                 loss.backward()
                 self.optimizer.step()
+
+                total_loss += loss.item()
 
             # Average loss for the epoch
             avg_loss = total_loss / len(train_loader)
@@ -141,3 +147,17 @@ class SequentialEmbedder(Embedder):
                 torch.save(self, checkpoint_path)
 
         return self
+
+    def _process_loss_not_pairwise(self, data):
+        paths, grades, masks = data
+        embeddings = self(paths, mask=masks)
+        loss = self.criterion(embeddings, grades)
+        return loss
+
+    def _process_loss_pairwise(self, data):
+        anchor_path, anchor_mask, pos_path, pos_mask, neg_path, neg_mask = data
+        anchor_embeddings = self(anchor_path, mask=anchor_mask)
+        pos_embeddings = self(pos_path, mask=pos_mask)
+        neg_embeddings = self(neg_path, mask=neg_mask)
+        loss = self.criterion(anchor_embeddings, pos_embeddings, neg_embeddings)
+        return loss
