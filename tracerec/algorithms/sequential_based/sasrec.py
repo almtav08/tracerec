@@ -79,15 +79,16 @@ class SASRecEncoder(SequentialEmbedder):
         if self.pooling == "last":
             # Encuentra el índice del último token válido (no padding)
             if mask is not None:
-                lengths = mask.sum(dim=1) - 1
+                mask_valid = torch.logical_not(mask)
+                lengths = mask_valid.sum(dim=1) - 1
                 user_emb = out[torch.arange(batch_size, dtype=torch.long), lengths]
             else:
                 user_emb = out[:, -1, :]
         elif self.pooling == "mean":
             if mask is not None:
-                user_emb = (out * mask.unsqueeze(-1)).sum(dim=1) / mask.sum(
-                    dim=1, keepdim=True
-                )
+                mask_valid = torch.logical_not(mask)
+                denom = mask_valid.sum(dim=1, keepdim=True) - 1
+                user_emb = (out * mask_valid.unsqueeze(-1)).sum(dim=1) / denom
             else:
                 user_emb = out.mean(dim=1)
 

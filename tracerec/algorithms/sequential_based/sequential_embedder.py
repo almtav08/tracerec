@@ -55,7 +55,8 @@ class SequentialEmbedder(Embedder):
             "The forward method must be implemented by subclasses."
         )
 
-    def fit(self,
+    def fit(
+        self,
         data,
         y,
         masks=None,
@@ -92,7 +93,10 @@ class SequentialEmbedder(Embedder):
         # Set optimizer
         self.optimizer = self.optimizer(self.parameters(), lr=lr)
 
-        pairwise = getattr(self.criterion, "is_pairwise", False) and self.criterion.is_pairwise()
+        pairwise = (
+            getattr(self.criterion, "is_pairwise", False)
+            and self.criterion.is_pairwise()
+        )
 
         # Create DataLoader for batching
         dataset = PathDataset(data, y, masks, pairwise=pairwise)
@@ -150,12 +154,23 @@ class SequentialEmbedder(Embedder):
 
     def _process_loss_not_pairwise(self, data):
         paths, grades, masks = data
+        paths = paths.to(self.device)
+        grades = grades.to(self.device)
+        if masks is not None:
+            masks = masks.to(self.device)
         embeddings = self(paths, mask=masks)
         loss = self.criterion(embeddings, grades)
         return loss
 
     def _process_loss_pairwise(self, data):
         anchor_path, anchor_mask, pos_path, pos_mask, neg_path, neg_mask = data
+        anchor_path = anchor_path.to(self.device)
+        pos_path = pos_path.to(self.device)
+        neg_path = neg_path.to(self.device)
+        if anchor_mask is not None:
+            anchor_mask = anchor_mask.to(self.device)
+            pos_mask = pos_mask.to(self.device)
+            neg_mask = neg_mask.to(self.device)
         anchor_embeddings = self(anchor_path, mask=anchor_mask)
         pos_embeddings = self(pos_path, mask=pos_mask)
         neg_embeddings = self(neg_path, mask=neg_mask)
