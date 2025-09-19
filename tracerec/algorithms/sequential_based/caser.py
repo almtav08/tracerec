@@ -67,7 +67,8 @@ class CaserEncoder(SequentialEmbedder):
 
         # --- Opcional: aplicar máscara de padding ---
         if mask is not None:
-            input_embs = input_embs * mask.unsqueeze(-1)
+            mask_valid = torch.logical_not(mask)
+            input_embs = input_embs * mask_valid.unsqueeze(-1)
 
         # Añadimos una dimensión de canal para convoluciones 2D
         # shape: (batch_size, 1, seq_length, emb_dim)
