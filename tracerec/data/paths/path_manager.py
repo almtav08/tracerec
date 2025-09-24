@@ -31,8 +31,8 @@ class PathManager:
             grades (list): List of grades corresponding to the paths.
             item_embedder (GraphEmbedder): Item embedder for transforming item IDs into embeddings.
         """
-        self.paths = paths if paths is not None else {}
-        self.grades = grades if grades is not None else []
+        self.paths = paths.copy() if paths is not None else {}
+        self.grades = grades.copy() if grades is not None else []
         self.max_seq_length = max_seq_length
         self.item_embedder = item_embedder
         self.att_mask = att_mask
