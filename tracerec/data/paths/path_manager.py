@@ -14,7 +14,14 @@ class PathManager:
     A path is an ordered sequence of elements a user has interacted with.
     """
 
-    def __init__(self, paths=None, grades=None, max_seq_length=128, item_embedder: GraphEmbedder = None, att_mask = True):
+    def __init__(
+        self,
+        paths=None,
+        grades=None,
+        max_seq_length=128,
+        item_embedder: GraphEmbedder = None,
+        att_mask=True,
+    ):
         """
         Initializes the path manager.
 
@@ -29,6 +36,8 @@ class PathManager:
         self.max_seq_length = max_seq_length
         self.item_embedder = item_embedder
         self.att_mask = att_mask
+        self.train_indexes = []
+        self.test_indexes = []
         if self.att_mask:
             self.attention_mask = {}
 
@@ -58,7 +67,7 @@ class PathManager:
                 self.paths[user] = items + padding
                 mask[length:] = 1
             elif length > self.max_seq_length:
-                self.paths[user] = items[-self.max_seq_length:]
+                self.paths[user] = items[-self.max_seq_length :]
 
             self.attention_mask[user] = mask
 
@@ -203,6 +212,8 @@ class PathManager:
                 train_size = int(len(group) * train_ratio)
                 train_indexes = group[:train_size]
                 test_indexes = group[train_size:]
+                self.train_indexes.extend(train_indexes)
+                self.test_indexes.extend(test_indexes)
 
                 for idx in train_indexes:
                     train_paths.append(self.paths[idx])
@@ -216,21 +227,28 @@ class PathManager:
                         test_masks.append(self.attention_mask[idx])
 
             if self.att_mask:
-                return train_paths, train_grades, train_masks, test_paths, test_grades, test_masks
+                return (
+                    train_paths,
+                    train_grades,
+                    train_masks,
+                    test_paths,
+                    test_grades,
+                    test_masks,
+                )
             return train_paths, train_grades, test_paths, test_grades
 
         train_size = int(len(indexes) * train_ratio)
-        train_indexes = indexes[:train_size]
-        test_indexes = indexes[train_size:]
+        self.train_indexes = indexes[:train_size]
+        self.test_indexes = indexes[train_size:]
 
-        train_paths = [self.paths[k] for k in train_indexes]
-        train_grades = [self.grades[k] for k in train_indexes]
-        test_paths = [self.paths[k] for k in test_indexes]
-        test_grades = [self.grades[k] for k in test_indexes]
+        train_paths = [self.paths[k] for k in self.train_indexes]
+        train_grades = [self.grades[k] for k in self.train_indexes]
+        test_paths = [self.paths[k] for k in self.test_indexes]
+        test_grades = [self.grades[k] for k in self.test_indexes]
 
         if self.att_mask:
-            train_masks = [self.attention_mask[k] for k in train_indexes]
-            test_masks = [self.attention_mask[k] for k in test_indexes]
+            train_masks = [self.attention_mask[k] for k in self.train_indexes]
+            test_masks = [self.attention_mask[k] for k in self.test_indexes]
             return (
                 train_paths,
                 train_grades,
