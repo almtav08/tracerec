@@ -187,7 +187,7 @@ class PathManager:
         indexes = list(self.paths.keys())
         if random_state is not None:
             random.seed(random_state)
-            random.shuffle(indexes)
+        random.shuffle(indexes)
 
         if relation_ratio:
             # Group paths by grade
