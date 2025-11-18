@@ -35,9 +35,13 @@ class RotatE(GraphEmbedder):
 
         self.gamma = gamma
         self.epsilon = 2.0
-        self.embedding_range = nn.Parameter(
-            torch.Tensor([(self.gamma + self.epsilon) / embedding_dim]),
-            requires_grad=False,
+        self.embedding_range = (self.gamma + self.epsilon) / embedding_dim
+
+        self.relation_embeddings = nn.Embedding(num_relations, embedding_dim // 2)
+        nn.init.uniform_(
+            self.relation_embeddings.weight.data,
+            -self.embedding_range,
+            self.embedding_range,
         )
 
     def forward(self, triples):
